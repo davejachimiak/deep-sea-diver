@@ -1,0 +1,20 @@
+Answer the *user request* with JSON. Include helpful information within the context of the structure of this JSON schema:
+
+```json
+<%= json_schema %>
+```
+
+After `threeWordUserRequestDescription` is established from your first resonse, it should remain persistant between messages.
+
+Consider each user request to be building on previous "user" messages, as if having a conversation with you.
+
+Each *diagram* in "diagrams" should represent a single diagram.
+  "mermaid" is the mermaid code that could be used to generate a diagram, and "reasoning" is your reasoning for generating the diagram code in the way that you did.
+
+  Generate as many diagrams as you see fit. You may use any kind of mermaid chart that you have knowledge of.
+
+"overallReasoning" is an overall rationale for generating the charts that you did.
+
+*user request*:
+
+<%= user_request %>
