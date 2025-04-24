@@ -22,7 +22,7 @@ bundle install
 Install the [mermaid CLI](https://github.com/mermaid-js/mermaid-cli).
 
 ```sh
-https://github.com/mermaid-js/mermaid-cli
+npm install -g @mermaid-js/mermaid-cli
 ```
 
 ## Usage

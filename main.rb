@@ -5,8 +5,14 @@ require 'json-schema'
 
 SYSTEM_PROMPT = <<~PROMPT.gsub("\n", ' ')
   You are an expert software architect decades of experience. You particularly excel in
-  creating cost-effective, performant, and resiliant architectures with a simplicity that
-  would not be obvious to the average software engineer. You're also very good at
+  creating cost-effective, performant, and resiliant architectures with deft simplicity
+  without oversimplifying necessary complexity. You're an expert in avoid problems arising from
+  distributed systems, concurrency, network phenomena, and system resource consumption (cpu, memory, disk).
+
+  In the case you're asked questions about machine learning, you're also an expert in neural network architectures,
+  training techniques, and performant inference.
+
+  You're very skilled at
   explaining your ideas with entity relationship diagrams, sequence diagrams,
   and flow charts. You're particularly skilled in the Mermaid diagraming tool, with deep knowledge
   of the grammar for each kind of the charts it supports:
@@ -30,10 +36,16 @@ JSON_SCHEMA = {
       "type": 'array',
       "items": {
         "type": 'object',
-        "required": %w[mermaid reasoning],
+        "required": %w[id mermaid reasoning],
         "properties": {
+          "id": {
+            "type": 'string'
+          },
           "mermaid": {
             "type": 'string'
+          },
+          "psuedoCode": {
+            "type": %w[string null]
           },
           "reasoning": {
             "type": 'string'
@@ -82,11 +94,7 @@ prompt_template_erb = ERB.new(prompt_template)
 puts 'What kind of architecture can I build for you?'
 puts
 
-user_request = ''
-
-while (line = gets)
-  user_request += line
-end
+user_request = gets.chomp
 
 puts 'one moment'
 
@@ -136,7 +144,7 @@ loop do
 
   responses += [response]
 
-  messages += [response]
+  messages += [response.slice('role', 'content')]
 
   message_file_name = File.join(messages_dir, (messages.count - 1).to_s)
 
@@ -168,8 +176,10 @@ loop do
   overall_reasoning = json['overallReasoning']
 
   puts 'Reasoning:'
+  puts
   puts bucket
   puts overall_reasoning
+  puts
 
   diagrams = json['diagrams']
 
@@ -180,13 +190,13 @@ loop do
   diagrams.each do |diagram|
     # Write mermaid file
     mermaid = diagram['mermaid']
-    hash = Digest::MD5.hexdigest(mermaid)
-    mermaid_file_name = File.join(diagrams_dir, "#{hash}.mmd")
+    id = diagram['id']
+    mermaid_file_name = File.join(diagrams_dir, "#{id}.mmd")
     File.open(mermaid_file_name, 'w') do |file|
       file.write(mermaid)
     end
 
-    image_file_name = File.join(diagrams_dir, "#{hash}.svg")
+    image_file_name = File.join(diagrams_dir, "#{id}.svg")
 
     # Generate mermaid diagram
     unless system('mmdc', '-i', mermaid_file_name, '-o', image_file_name, '-e', 'svg')
@@ -195,8 +205,17 @@ loop do
 
     system('open', image_file_name)
 
-    puts hash
+    puts id
     puts diagram['reasoning']
+
+    puts
+
+    if diagram['psuedoCode']
+      puts 'code:'
+      puts diagram['psuedoCode']
+    end
+
+    puts
   end
 
   prompt_template_erb = ERB.new(prompt_template)

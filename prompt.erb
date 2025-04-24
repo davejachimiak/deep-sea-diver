@@ -6,6 +6,10 @@ Answer the *user request* with JSON. Include helpful information within the cont
 
 After `threeWordUserRequestDescription` is established from your first resonse, it should remain persistant between messages.
 
+The "id" for each diagram should be an 8-character unique identifier.
+
+Only include "psuedoCode" if the user asks for code related to the diagram. Otherwise return `null`.
+
 Consider each user request to be building on previous "user" messages, as if having a conversation with you.
 
 Each *diagram* in "diagrams" should represent a single diagram.
